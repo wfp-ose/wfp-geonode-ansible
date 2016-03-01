@@ -1,0 +1,75 @@
+---
+
+#- name: "apt-get update"
+#  apt: update_cache=yes
+#  become: yes
+#  become_user: root
+
+# Can't run update or it will change to 6.7, etc.
+#- name: "Update System Libraries"
+#  become: yes
+#  become_user: root
+#  shell: "yum -y update"
+
+- name: Install Basic Libraries
+  become: yes
+  become_user: root
+  yum: name={{ item }} state=latest
+  with_items:
+    - vim
+    - wget
+    - unzip
+    - telnet
+    - nmap
+    - git
+
+- name: Install Compiliers & Kernel Modules
+  become: yes
+  become_user: root
+  yum: name={{ item }} state=latest
+  with_items:
+    - gcc
+    - gcc-c++
+    - kernel-headers
+    - kernel-devel
+    - dkms
+
+- name: Check if Python 2.7 is Installed
+  stat: path=/usr/bin/python2.7
+  register: e
+
+- name: "Install Python"
+  include: install_python.yml
+  when: not (e.stat.isreg is defined and e.stat.isreg)
+
+- name: "Check if Easy Install is Installed"
+  stat: path=/usr/bin/easy_install-2.7
+  register: e
+
+- name: "Install Easy Install"
+  include: install_easyinstall.yml
+  when: not (e.stat.isreg is defined and e.stat.isreg)
+
+- name: "Check if PIP is Installed"
+  stat: path=/usr/bin/pip
+  register: e
+
+- name: "Install PIP"
+  become: yes
+  become_user: root
+  shell: "easy_install-2.7 pip"
+  args:
+    chdir: "/usr/src"
+  when: not (e.stat.isreg is defined and e.stat.isreg)
+
+- name: "Check if virtualenv is Installed"
+  stat: path=/usr/bin/virtualenv
+  register: e
+
+- name: "Install virtualenv"
+  become: yes
+  become_user: root
+  shell: "easy_install-2.7 virtualenv"
+  args:
+    chdir: "/usr/src"
+  when: not (e.stat.isreg is defined and e.stat.isreg)

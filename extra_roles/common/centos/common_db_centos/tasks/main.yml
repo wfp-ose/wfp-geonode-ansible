@@ -1,0 +1,54 @@
+---
+
+- assert:
+    that:
+      - PACKAGES_DATABASE != ''
+  tags: ['check_vars']
+
+# http://serverfault.com/questions/637549/epel-repo-for-centos-6-causing-error
+- name: "Upgrade Certs for EPEL"
+  become: yes
+  become_user: root
+  shell: "yum upgrade ca-certificates --disablerepo=epel"
+
+- name: Download PostgreSQL Packages
+  become: yes
+  become_user: root
+  yum: name={{ item }} state=present
+  with_items: "{{ PACKAGES_DATABASE }}"
+
+- name: Install PostgreSQL Packages
+  become: yes
+  become_user: root
+  yum: name={{ item }} state=present
+  with_items:
+    - postgresql92-server
+    - postgis2_92-client-2.0.4
+    - postgresql92-devel
+    - postgis2_92-devel-2.0.4
+    - gdal-devel
+    - postgresql-devel  # Used by rebuilding PostGIS later
+    - geos-devel  # Used by rebuilding PostGIS later
+    - geos-python  # Used by rebuilding PostGIS later
+    - proj-devel  # Used by rebuilding PostGIS later
+
+- name: Install Psycopg2
+  become: yes
+  become_user: root
+  shell: "export PATH=/usr/pgsql-9.2/bin:$PATH; pip install psycopg2"
+
+- name: "PostGIS Fix"
+  include: postgis.yml
+
+#- name: "Add access to pg_hba.conf for DB users"
+#  become: yes
+#  become_user: postgres
+#  lineinfile: "dest={{ PATH_PG_HBA }} line={{ item }} create=yes"
+#  with_items: "{{ DATABASE_ACL }}"
+#  notify: restart postgresql-9.2
+
+#- name: "Add access to postgresql.conf for IP Addresses"
+#  become: yes
+#  become_user: postgres
+#  lineinfile: dest={{ PATH_PG_CONF }} regexp="^#?listen_addresses\\s*=" line="listen_addresses = '{{ DATABASE_LISTEN_ADDRESSES | join(',') }}'" state=present
+#  notify: restart postgresql-9.2

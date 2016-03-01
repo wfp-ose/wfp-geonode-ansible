@@ -1,0 +1,6 @@
+---
+
+- name: restart tomcat6
+  become: yes
+  become_user: root
+  service: name=tomcat6 state=restarted

@@ -1,0 +1,11 @@
+---
+
+- name: "GDAL Python Bindings / Requirement Check"
+  shell: "/usr/bin/pip list | grep \"^GDAL (1.9.1)$\""
+  ignore_errors: yes
+  register: gdal_present
+  changed_when: False
+  failed_when: False
+
+- include: gdal.yml
+  when: gdal_present.rc == 1

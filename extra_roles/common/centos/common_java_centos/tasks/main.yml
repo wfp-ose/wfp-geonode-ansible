@@ -1,0 +1,9 @@
+---
+
+- name: Install JDK 7
+  become: yes
+  become_user: root
+  yum: name="java-1.7.0-openjdk-devel" state=present
+
+- name: Set Java Version
+  alternatives: name=java path="/usr/lib/jvm/jre-1.7.0-openjdk.x86_64/bin/java"

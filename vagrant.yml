@@ -1,0 +1,17 @@
+---
+
+- name: Create a WFP GeoNode virtual machine via vagrant
+  hosts: all
+  remote_user: vagrant
+  roles:
+    - common_networking_centos  # Configure iptables for outside access
+    - common_base_centos
+    - common_java_centos
+    - common_db_centos
+    - common_memcached_centos
+    - common_rabbitmq_centos  # Required by celery, which is used by GeoNode
+    - common_webserver_tomcat_centos
+    - common_webserver_django_centos  # Installs uwsgi
+    - common_webserver_proxy_centos  # Installs NGINX
+    - common_gdal_centos  # Install GDAL to python virtual environment
+    - wfp_geonode

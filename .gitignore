@@ -1,0 +1,8 @@
+*.DS_Store
+*.swp
+secret
+secret.yml
+.vagrant
+hosts
+ansible.log
+*.pyc

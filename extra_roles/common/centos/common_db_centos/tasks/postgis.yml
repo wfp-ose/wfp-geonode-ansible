@@ -1,0 +1,22 @@
+---
+
+- name: "Download postgis source"
+  become: yes
+  become_user: root
+  get_url: url="{{ URI_SOURCE.postgis }}" dest="/usr/src/postgis-2.0.6.tar.gz"
+
+- name: "Unpack PostGIS Source Code"
+  become: yes
+  become_user: root
+  unarchive: src=/usr/src/postgis-2.0.6.tar.gz dest=/usr/src/ copy=no
+
+- name: "Build PostGIS From Source (pg_config fix)"
+  become: yes
+  become_user: root
+  shell: "{{ item }}"
+  args:
+    chdir: "/usr/src/postgis-2.0.6"
+  with_items:
+    - "./configure --with-pgconfig=/usr/pgsql-9.2/bin/pg_config"
+    - "make"
+    - "make install"
